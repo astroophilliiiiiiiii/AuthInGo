@@ -30,14 +30,14 @@ func NewConfig() *Config {
 // app -- instance of server
 type Application struct {
 	Config Config
-	Store  db.Storage // ye interface btaayaa actual constructor m pass krrenge
+	// Store  db.Storage // ye interface btaayaa actual constructor m pass krrenge
 }
 
 // constructor
 func NewApp(cfg *Config) *Application {
 	return &Application{
-		Config: *cfg,             // ye bahr bnraa h  -- isko v NewConfig() kr sktee thee !!
-		Store:  *db.NewStorage(), // ye andr hi bnaadiyaa
+		Config: *cfg, // ye bahr bnraa h  -- isko v NewConfig() kr sktee thee !!
+		// Store:  *db.NewStorage(), // ye andr hi bnaadiyaa
 	}
 }
 
@@ -45,6 +45,7 @@ func NewApp(cfg *Config) *Application {
 func (app *Application) Run() error {
 
 	// all connection will happen here
+	// isme actuall valaa passed -- but inner files m inke interface se all logic handled -- dependency injection
 	ur := db.NewUserRepository()
 	us := services.NewUserService(ur)
 	uc := controllers.NewUserController(us)

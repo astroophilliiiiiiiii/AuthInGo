@@ -2,6 +2,7 @@ package main
 
 import (
 	"AuthInGo/app"
+	dbConfig "AuthInGo/config/db"
 	config "AuthInGo/config/env"
 )
 
@@ -16,6 +17,7 @@ func main() {
 	// new app instance made
 	app := app.NewApp(cfg)
 
+	dbConfig.SetupDb()
 	// run the server
 	app.Run()
 }
