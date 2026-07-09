@@ -11,6 +11,8 @@ import (
 type UserRespository interface {
 	GetById() (*models.User, error)
 	Create() error
+	//GetAll() ([]*models.User, error) // 📌⌛ should return array of objects
+	//DeleteById(id int64) error       // 📌⌛ should take an id parameter -- delete the row
 }
 
 // actual -- that will talk to the database
