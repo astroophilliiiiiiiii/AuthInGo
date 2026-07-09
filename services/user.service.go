@@ -8,7 +8,7 @@ import (
 // -- controllers -- services -- repository
 
 type UserService interface {
-	CreateUser() error
+	GetUserByID() error
 }
 
 type UserServiceImpl struct {
@@ -24,8 +24,8 @@ func NewUserService(_userRespository db.UserRespository) UserService {
 }
 
 // member function
-func (u *UserServiceImpl) CreateUser() error {
-	fmt.Println("Creating user in UserService")
+func (u *UserServiceImpl) GetUserByID() error {
+	fmt.Println("Getting user in UserService")
 
 	// call the repo layer -- of this Service  that was passed while creating this service
 	// and in actual only the repo will be passed -- backend logic is on the interface

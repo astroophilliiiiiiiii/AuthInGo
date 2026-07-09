@@ -1,9 +1,10 @@
 package app
 
 import (
+	dbConfig "AuthInGo/config/db"
 	config "AuthInGo/config/env"
 	"AuthInGo/controllers"
-	db "AuthInGo/db/repositories"
+	repo "AuthInGo/db/repositories"
 	"AuthInGo/routers"
 	"AuthInGo/services"
 	"fmt"
@@ -44,9 +45,16 @@ func NewApp(cfg *Config) *Application {
 // member function   -- here app.run()
 func (app *Application) Run() error {
 
+	db, err := dbConfig.SetupDb() // setting up the db connection
+
+	if err != nil {
+		fmt.Println("Error setting up database:", err)
+		return err
+	}
+
 	// all connection will happen here
 	// isme actuall valaa passed -- but inner files m inke interface se all logic handled -- dependency injection
-	ur := db.NewUserRepository()
+	ur := repo.NewUserRepository(db)
 	us := services.NewUserService(ur)
 	uc := controllers.NewUserController(us)
 	uRouter := routers.NewUserRouter(uc)

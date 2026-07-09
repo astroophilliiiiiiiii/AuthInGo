@@ -21,11 +21,11 @@ func NewUserController(__userService services.UserService) *UserController {
 }
 
 // member function
-func (uc *UserController) RegisterUser(w http.ResponseWriter, r *http.Request) {
+func (uc *UserController) GetUserByID(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Registered user called in UserController")
 	// call the service layer
-	uc.UserService.CreateUser() // call the createuser function
+	uc.UserService.GetUserByID() // call the createuser function
 
 	// send the response
-	w.Write([]byte("User Registration Endpoint"))
+	w.Write([]byte("User fetching Endpoint done"))
 }

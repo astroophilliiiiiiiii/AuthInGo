@@ -38,6 +38,7 @@ func SetupDb() (*sql.DB, error) {
 	}
 
 	fmt.Println("Connected to the database:- ", cfg.DBName)
+
 	return db, nil // no error to return
 
 }

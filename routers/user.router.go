@@ -30,6 +30,6 @@ func NewUserRouter(_usercontroller *controllers.UserController) Router { // this
 func (ur *UserRouter) Register(chiR chi.Router) {
 
 	// basically registering the routes to the one main chi ROUTERRR -- router.go file
-	chiR.Post("/signup", ur.UserController.RegisterUser)
+	chiR.Get("/profile", ur.UserController.GetUserByID)
 
 }
