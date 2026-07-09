@@ -26,7 +26,7 @@ func NewUserRepository() UserRespository {
 	}
 }
 
-// member functions -- implements the interface
+// member functions of Impl kaa hainaa  -- implements the interface
 func (u *UserRespositoryImpl) Create() error {
 	fmt.Println("Creating user in UserRepository ")
 	return nil

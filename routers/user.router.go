@@ -26,10 +26,10 @@ func NewUserRouter(_usercontroller *controllers.UserController) Router { // this
 	}
 }
 
-// member function
-func (ur *UserRouter) Register(r chi.Router) {
+// member function -- registering to the main chi router
+func (ur *UserRouter) Register(chiR chi.Router) {
 
-	//Register() = apne routes jaake main chi router me chipka do 😂
-	r.Post("/signup", ur.UserController.RegisterUser)
+	// basically registering the routes to the one main chi ROUTERRR -- router.go file
+	chiR.Post("/signup", ur.UserController.RegisterUser)
 
 }

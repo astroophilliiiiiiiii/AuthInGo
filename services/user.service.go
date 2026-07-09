@@ -16,7 +16,7 @@ type UserServiceImpl struct {
 	userRepository db.UserRespository // declared -- passed in the constructor
 }
 
-// constructor
+// constructor - isme pass hori actual repo layerr
 func NewUserService(_userRespository db.UserRespository) UserService {
 	return &UserServiceImpl{ // abhi isko UserServiceImpl ko UserService kaa type same krna padega
 		userRepository: _userRespository,
