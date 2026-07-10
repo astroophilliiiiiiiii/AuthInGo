@@ -1,0 +1,77 @@
+version: '3'
+
+vars:
+  MIGRATIONS_FOLDER: db/migrations
+  DB_URL: root:kritib@3180@tcp(localhost:3306)/auth_dev
+
+tasks:
+  run:
+    cmds:
+      - go run main.go
+
+  build:
+    cmds:
+      - go build -o app
+
+
+  # create migration
+  # task create_migration name=create_user_table
+  create_migration:
+    cmds:
+      - goose -dir "{{.MIGRATIONS_FOLDER}}" create {{.name}} sql
+
+
+  # migrate up
+  # task migrate_up
+  migrate_up:
+    cmds:
+      - goose -dir "{{.MIGRATIONS_FOLDER}}" mysql "{{.DB_URL}}" up
+
+
+  # migrate down
+  # task migrate_down
+  migrate_down:
+    cmds:
+      - goose -dir "{{.MIGRATIONS_FOLDER}}" mysql "{{.DB_URL}}" down
+
+
+  # reset all migrations
+  # task migrate_reset
+  migrate_reset:
+    cmds:
+      - goose -dir "{{.MIGRATIONS_FOLDER}}" mysql "{{.DB_URL}}" reset
+
+
+  # check migration status
+  # task migrate_status
+  migrate_status:
+    cmds:
+      - goose -dir "{{.MIGRATIONS_FOLDER}}" mysql "{{.DB_URL}}" status
+
+
+  # redo last migration
+  # task migrate_redo
+  migrate_redo:
+    cmds:
+      - goose -dir "{{.MIGRATIONS_FOLDER}}" mysql "{{.DB_URL}}" redo
+
+
+  # migrate upto specific version
+  # task migrate_to version=20260710120000
+  migrate_to:
+    cmds:
+      - goose -dir "{{.MIGRATIONS_FOLDER}}" mysql "{{.DB_URL}}" up-to {{.version}}
+
+
+  # rollback to specific version
+  # task migrate_down_to version=20260710120000
+  migrate_down_to:
+    cmds:
+      - goose -dir "{{.MIGRATIONS_FOLDER}}" mysql "{{.DB_URL}}" down-to {{.version}}
+
+
+  # run tests
+  # task test
+  test:
+    cmds:
+      - go test ./...

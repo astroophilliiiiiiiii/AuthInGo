@@ -1,6 +1,6 @@
 package models
 
-// models created
+// models created -- to be used in repo layer as a template !!
 type User struct {
 	Id        int64
 	Username  string

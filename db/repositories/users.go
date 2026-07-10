@@ -11,8 +11,8 @@ import (
 type UserRespository interface {
 	GetById() (*models.User, error)
 	Create() error
-	//GetAll() ([]*models.User, error) // 📌⌛ should return array of objects
-	//DeleteById(id int64) error       // 📌⌛ should take an id parameter -- delete the row
+	GetAll() ([]*models.User, error) // 📌⌛ should return array of objects
+	DeleteById(id int64) error       // 📌⌛ should take an id parameter -- delete the row
 }
 
 // actual -- that will talk to the database
@@ -93,6 +93,78 @@ func (u *UserRespositoryImpl) Create() error {
 	}
 
 	fmt.Println("User created successfully , rows affected: ", rowsAffected)
+
+	return nil
+}
+
+func (u *UserRespositoryImpl) GetAll() ([]*models.User, error) {
+	// Step-1 Prepare the query
+	query := "SELECT id, username, email, password, created_at, updated_at FROM users"
+
+	// Step-2 Execute the query
+	rows, err := u.db.Query(query)
+
+	if err != nil {
+		fmt.Println("Error fetching the rows!!")
+		return nil, nil
+	}
+
+	// Step-3 Process the result
+	users := []*models.User{} // as there is array of users
+
+	for rows.Next() { // rows ke andar ek internal pointer/cursor hota hai ✅
+		// next krne se pointer mover to the next
+		user := &models.User{}
+
+		err := rows.Scan(
+			&user.Id,
+			&user.Username,
+			&user.Email,
+			&user.Password,
+			&user.CreatedAt,
+			&user.UpdatedAt,
+		)
+
+		if err != nil {
+			return nil, nil // stops the flow -- nil returned !!
+		}
+
+		users = append(users, user)
+	}
+
+	fmt.Println("All users fetched successfullyy !! ")
+
+	return users, nil
+}
+
+// like CREATE a row -----
+func (u *UserRespositoryImpl) DeleteById(id int64) error {
+
+	// Step-1 Prepare the query  -- to delete 1 row
+	query := "DELETE FROM users WHERE id=?"
+
+	// Step-2 Execute the query
+	result, err := u.db.Exec(query, id)
+
+	if err != nil {
+		fmt.Println("Error deleting the row")
+		return err
+	}
+
+	// Step-3 Check deleted or not  -- Process the result
+	rowsAffected, rowErr := result.RowsAffected()
+
+	if rowErr != nil {
+		fmt.Println("Error getting in rows affected:", rowErr)
+		return rowErr
+	}
+
+	if rowsAffected == 0 {
+		fmt.Println("No rows were affected , user not deleted! ")
+		return rowErr
+	}
+
+	fmt.Println("User deleted successfully , rows affected: ", rowsAffected)
 
 	return nil
 }
