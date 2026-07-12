@@ -30,6 +30,11 @@ func NewUserRouter(_usercontroller *controllers.UserController) Router { // this
 func (ur *UserRouter) Register(chiR chi.Router) {
 
 	// basically registering the routes to the one main chi ROUTERRR -- router.go file
-	chiR.Get("/profile", ur.UserController.GetUserByID)
+	//Ab dekho chi.Get ko kya chahiye?
+	//Usko chahiye ek function jiska signature ho:
+	//func(w http.ResponseWriter, r *http.Request)
+
+	chiR.Get("/profile", ur.UserController.Create)
+	chiR.Post("/login", ur.UserController.LoginUser)
 
 }

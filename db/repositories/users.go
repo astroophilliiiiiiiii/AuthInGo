@@ -10,7 +10,7 @@ import (
 
 type UserRespository interface {
 	GetById() (*models.User, error)
-	Create() error
+	Create(username *string, email *string, password *string) error
 	GetAll() ([]*models.User, error) // 📌⌛ should return array of objects
 	DeleteById(id int64) error       // 📌⌛ should take an id parameter -- delete the row
 }
@@ -66,13 +66,13 @@ func (u *UserRespositoryImpl) GetById() (*models.User, error) {
 	return user, nil
 }
 
-func (u *UserRespositoryImpl) Create() error {
+func (u *UserRespositoryImpl) Create(un *string, em *string, hashpass *string) error {
 
 	// Step-1 Prepare the query
 	query := "INSERT INTO users (username, email, password) VALUES (?, ?, ?)"
 
 	// Step-2 Execute the query
-	result, err := u.db.Exec(query, "TestUser", "test@gmail.com", "123") // Exec -- doesnt return any row
+	result, err := u.db.Exec(query, *un, *em, *hashpass) // Exec -- doesnt return any row -- affecting the db
 
 	if err != nil {
 		fmt.Println("Error returning the row!!")

@@ -2,13 +2,17 @@ package services
 
 import (
 	db "AuthInGo/db/repositories"
+	"AuthInGo/utils"
+	"encoding/json"
 	"fmt"
+	"net/http"
 )
 
 // -- controllers -- services -- repository
 
 type UserService interface {
-	GetUserByID() error
+	CreateUserService(r *http.Request) error
+	LogInUser() error
 }
 
 type UserServiceImpl struct {
@@ -23,13 +27,48 @@ func NewUserService(_userRespository db.UserRespository) UserService {
 	}
 }
 
+type Inputbody struct {
+	Username string // capital needed -- as when decoded -- in diff package these variables will not be accessible
+	Email    string
+	Password string
+}
+
 // member function
-func (u *UserServiceImpl) GetUserByID() error {
+func (u *UserServiceImpl) CreateUserService(r *http.Request) error {
 	fmt.Println("Getting user in UserService")
+
+	// fetching the data from the req.body and encrypting the password and forwarding it
+	var sample Inputbody
+	err := json.NewDecoder(r.Body).Decode(&sample) // decode accepts pointer
+	// r.Body = raw JSON data
+	// NewDecoder := made the json readable
+	// Decode reads the next JSON-encoded value from its input & stores the in sample
+
+	if err != nil {
+		fmt.Println("Error reading the data !! ")
+	}
+
+	sample.Password, err = utils.HashPassword(sample.Password) // its the hashed password
+
+	if err != nil {
+		fmt.Println("Error hashing")
+		return err
+	}
 
 	// call the repo layer -- of this Service  that was passed while creating this service
 	// and in actual only the repo will be passed -- backend logic is on the interface
-	u.userRepository.Create()
 
+	// generating the JWT token
+	// token , err  := GenJwtToken(&sample)
+
+	u.userRepository.Create(&sample.Username, &sample.Email, &sample.Password)
+
+	return nil
+}
+
+func (u *UserServiceImpl) LogInUser() error {
+	response := utils.CheckHashPassword("testpassword", "$2a$10$Ps5fr3NzH1TbbaoS5lyPhuOITYk8sMI610Ph65v3Y0YM5J6HrfkjG")
+
+	fmt.Println("Login response:- ", response)
 	return nil
 }
