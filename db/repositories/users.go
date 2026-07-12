@@ -13,6 +13,7 @@ type UserRespository interface {
 	Create(username *string, email *string, password *string) error
 	GetAll() ([]*models.User, error) // 📌⌛ should return array of objects
 	DeleteById(id int64) error       // 📌⌛ should take an id parameter -- delete the row
+	GetByEmail(email string) (*models.User, error)
 }
 
 // actual -- that will talk to the database
@@ -167,4 +168,38 @@ func (u *UserRespositoryImpl) DeleteById(id int64) error {
 	fmt.Println("User deleted successfully , rows affected: ", rowsAffected)
 
 	return nil
+}
+
+// fetching by the email
+func (u *UserRespositoryImpl) GetByEmail(email string) (*models.User, error) {
+	fmt.Println("Getting user in UserRepository ")
+
+	// Step-1 Prepare the query  -- to fetch 1 single row
+	query := "SELECT id , username , email , password , created_at , updated_at FROM users WHERE email=?"
+
+	// ? is created to avoid the sql injection by the hackerss !!
+
+	// Step-2 Execute the query
+	row := u.db.QueryRow(query, email)
+
+	// Step-3 Process the result
+	user := &models.User{}
+
+	//Step 4: Scan result -- Scan database columns ko struct fields me copy karta h
+	err := row.Scan(&user.Id, &user.Username, &user.Email, &user.Password, &user.CreatedAt, &user.UpdatedAt)
+
+	//Step 5: Error handling
+	if err != nil {
+		if err == sql.ErrNoRows { // row doesnt existss !!
+			fmt.Println("No user found with given ID")
+			return nil, err
+		} else { // any other issue exitss
+			fmt.Println("Error scanning user: ", err)
+			return nil, err
+		}
+	}
+
+	fmt.Println("User fetched successfully: ", user)
+
+	return user, nil
 }

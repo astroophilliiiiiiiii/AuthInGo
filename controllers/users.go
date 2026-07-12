@@ -32,6 +32,7 @@ func (uc *UserController) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (uc *UserController) LoginUser(w http.ResponseWriter, r *http.Request) {
+
 	fmt.Println("Login user called in UserController")
 	err := uc.UserService.LogInUser() // user service ka hainaa login function
 

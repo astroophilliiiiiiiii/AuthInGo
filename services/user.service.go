@@ -12,7 +12,7 @@ import (
 
 type UserService interface {
 	CreateUserService(r *http.Request) error
-	LogInUser() error
+	LogInUser() (string, error)
 }
 
 type UserServiceImpl struct {
@@ -66,9 +66,37 @@ func (u *UserServiceImpl) CreateUserService(r *http.Request) error {
 	return nil
 }
 
-func (u *UserServiceImpl) LogInUser() error {
-	response := utils.CheckHashPassword("testpassword", "$2a$10$Ps5fr3NzH1TbbaoS5lyPhuOITYk8sMI610Ph65v3Y0YM5J6HrfkjG")
+func (u *UserServiceImpl) LogInUser() (string, error) {
+	// email and password r given as parameters
+	email := "kriti@gmail.com"
+	password := "testpassword"
 
-	fmt.Println("Login response:- ", response)
-	return nil
+	// Step-1 -- make a repo call to fetch the user by email
+	user, err := u.userRepository.GetByEmail(email)
+
+	// Step-2 -- if error exists
+	if err != nil {
+		fmt.Println("User doesnt exists !! ")
+		return "", err
+	}
+
+	// Step-3 -- check the password using checkhash
+	response := utils.CheckHashPassword(password, user.Password)
+
+	if response == false {
+		fmt.Println("Password doesnt matches !! ")
+		return "", err
+	}
+
+	// Step-4 -- print JWT token
+	token, err := GenJwtToken(user)
+
+	if err != nil {
+		fmt.Println("Error fetching the token!! ")
+		return "", err
+	}
+
+	fmt.Println("Token is:-- ", token)
+
+	return token, nil
 }

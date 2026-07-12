@@ -1,6 +1,7 @@
 package services
 
 import (
+	"AuthInGo/models"
 	"fmt"
 	"time"
 
@@ -12,10 +13,11 @@ import (
 
 //JWT → user identify karne ke liye only id/email
 
+// 📌📌 TODO -- create this in the env package
 var secretKey = []byte("secret-key") // := sirf function ke andar allowed hota hai ✅
 // Global/package variables → var
 
-func GenJwtToken(i *Inputbody) (string, error) {
+func GenJwtToken(i *models.User) (string, error) {
 	// NewWithClaims creates a new Token with the specified signing method and claims.
 	// MapClaims is a claims type that uses the mapstringany for JSON decoding.
 	// This is the default claims type if you don't supply one
