@@ -2,6 +2,7 @@ package services
 
 import (
 	db "AuthInGo/db/repositories"
+	"AuthInGo/dto"
 	"AuthInGo/utils"
 	"encoding/json"
 	"fmt"
@@ -12,7 +13,7 @@ import (
 
 type UserService interface {
 	CreateUserService(r *http.Request) error
-	LogInUser() (string, error)
+	LogInUser(payload *dto.LoginUserRequestDTO) (string, error)
 }
 
 type UserServiceImpl struct {
@@ -66,10 +67,10 @@ func (u *UserServiceImpl) CreateUserService(r *http.Request) error {
 	return nil
 }
 
-func (u *UserServiceImpl) LogInUser() (string, error) {
+func (u *UserServiceImpl) LogInUser(payload *dto.LoginUserRequestDTO) (string, error) {
 	// email and password r given as parameters
-	email := "kriti@gmail.com"
-	password := "testpassword"
+	email := payload.Email
+	password := payload.Password
 
 	// Step-1 -- make a repo call to fetch the user by email
 	user, err := u.userRepository.GetByEmail(email)

@@ -1,7 +1,10 @@
 package controllers
 
 import (
+	"AuthInGo/dto"
 	"AuthInGo/services"
+	"AuthInGo/utils"
+	"encoding/json"
 	"fmt"
 	"net/http"
 )
@@ -22,22 +25,43 @@ func NewUserController(__userService services.UserService) *UserController {
 
 // member function
 func (uc *UserController) Create(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Registered user called in UserController")
+	fmt.Println("CreateUser called in UserController")
 
 	// call the service layer
 	uc.UserService.CreateUserService(r) // call the createuser function
 
-	// send the response
-	w.Write([]byte("User creation done !! "))
+	// send the response -- JSON format
+	s := "User creation done !! "
+	jsonStr, err := json.Marshal(s)
+	if err != nil {
+		fmt.Println("Error in converting to json reponse ")
+		return
+	}
+
+	w.Write(jsonStr)
 }
-
 func (uc *UserController) LoginUser(w http.ResponseWriter, r *http.Request) {
-
 	fmt.Println("Login user called in UserController")
-	err := uc.UserService.LogInUser() // user service ka hainaa login function
+
+	var payload dto.LoginUserRequestDTO // dto type ke object mein payload fill
+
+	if jsonerr := utils.ReadJsonBody(r, &payload); jsonerr != nil { // shortcut to handle the error
+		w.Write([]byte("Something went wrong while logging in"))
+		return
+	}
+
+	if validationerr := utils.Validator.Struct(payload); validationerr != nil {
+		utils.WriteJsonErrorResponse(w, http.StatusBadRequest, "Invalid input data", validationerr)
+		return
+	}
+
+	token, err := uc.UserService.LogInUser(&payload) // user service -- contains logic of hwt and all --validating
 
 	if err != nil {
-		http.Error(w, "Login failed", http.StatusInternalServerError)
+		utils.WriteJsonErrorResponse(w, http.StatusInternalServerError, "Login failed", err)
+		return
 	}
-	w.Write([]byte("User login endpoint done"))
+
+	// send the response -- JSON format
+	utils.WriteJsonSuccessResponse(w, http.StatusOK, token, "User logged in sucessfully ! ")
 }
