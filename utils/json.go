@@ -1,5 +1,7 @@
 package utils
 
+// JSON MARSHALLING
+// consumedby the controllers layer to send the responses
 import (
 	"encoding/json"
 	"net/http"

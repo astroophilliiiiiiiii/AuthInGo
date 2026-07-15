@@ -2,6 +2,7 @@ package routers
 
 import (
 	"AuthInGo/controllers"
+	"AuthInGo/middlewares"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -34,7 +35,8 @@ func (ur *UserRouter) Register(chiR chi.Router) {
 	//Usko chahiye ek function jiska signature ho:
 	//func(w http.ResponseWriter, r *http.Request)
 
-	chiR.Get("/profile", ur.UserController.Create)
-	chiR.Post("/login", ur.UserController.LoginUser)
+	chiR.With(middlewares.UserCreateRequestValidator).Post("/profile", ur.UserController.Create) // validation needed
+	chiR.Get("/profile/{id}", ur.UserController.GetUserById)
+	chiR.With(middlewares.UserLoginRequestValidator).Post("/login", ur.UserController.LoginUser) // validation needed
 
 }

@@ -4,6 +4,7 @@ package routers
 
 import (
 	"AuthInGo/controllers"
+
 	// "AuthInGo/middlewares"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -24,7 +25,6 @@ func SetUpRouter(UserRouter Router) *chi.Mux {
 	chirouter := chi.NewRouter() // this is chi router inbuilt function for making a router
 	// route added to this router
 
-	//chirouter.Use(middlewares.RequestLogger) // that will ne registered for all set of below requests
 	chirouter.Use(middleware.Logger) // built-in middleware
 
 	chirouter.Get("/ping", controllers.PingHandler) // passing to controllers layer

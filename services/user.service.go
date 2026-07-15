@@ -3,17 +3,17 @@ package services
 import (
 	db "AuthInGo/db/repositories"
 	"AuthInGo/dto"
+	"AuthInGo/models"
 	"AuthInGo/utils"
-	"encoding/json"
 	"fmt"
-	"net/http"
 )
 
 // -- controllers -- services -- repository
 
 type UserService interface {
-	CreateUserService(r *http.Request) error
+	CreateUserService(payload dto.CreateUserRequestDto) (*models.User, error)
 	LogInUser(payload *dto.LoginUserRequestDTO) (string, error)
+	GetUserByIdService(id *int) (*models.User, error)
 }
 
 type UserServiceImpl struct {
@@ -35,25 +35,14 @@ type Inputbody struct {
 }
 
 // member function
-func (u *UserServiceImpl) CreateUserService(r *http.Request) error {
+func (u *UserServiceImpl) CreateUserService(payload dto.CreateUserRequestDto) (*models.User, error) {
 	fmt.Println("Getting user in UserService")
 
-	// fetching the data from the req.body and encrypting the password and forwarding it
-	var sample Inputbody
-	err := json.NewDecoder(r.Body).Decode(&sample) // decode accepts pointer
-	// r.Body = raw JSON data
-	// NewDecoder := made the json readable
-	// Decode reads the next JSON-encoded value from its input & stores the in sample
-
-	if err != nil {
-		fmt.Println("Error reading the data !! ")
-	}
-
-	sample.Password, err = utils.HashPassword(sample.Password) // its the hashed password
+	hashpassword, err := utils.HashPassword(payload.Password) // its the hashed password
 
 	if err != nil {
 		fmt.Println("Error hashing")
-		return err
+		return nil, err
 	}
 
 	// call the repo layer -- of this Service  that was passed while creating this service
@@ -62,9 +51,27 @@ func (u *UserServiceImpl) CreateUserService(r *http.Request) error {
 	// generating the JWT token
 	// token , err  := GenJwtToken(&sample)
 
-	u.userRepository.Create(&sample.Username, &sample.Email, &sample.Password)
+	user, err1 := u.userRepository.Create(&payload.Username, &payload.Email, &hashpassword)
 
-	return nil
+	if err1 != nil {
+		fmt.Println("Error creating the user ")
+		return nil, err1
+	}
+
+	return user, nil
+}
+
+func (u *UserServiceImpl) GetUserByIdService(id *int) (*models.User, error) {
+	fmt.Println("Getting user in UserService")
+
+	user, err := u.userRepository.GetById(id)
+
+	if err != nil {
+		fmt.Println("User doesnt exits")
+		return nil, err
+	}
+
+	return user, nil
 }
 
 func (u *UserServiceImpl) LogInUser(payload *dto.LoginUserRequestDTO) (string, error) {
@@ -73,7 +80,7 @@ func (u *UserServiceImpl) LogInUser(payload *dto.LoginUserRequestDTO) (string, e
 	password := payload.Password
 
 	// Step-1 -- make a repo call to fetch the user by email
-	user, err := u.userRepository.GetByEmail(email)
+	user, err := u.userRepository.GetByEmail(&email) // needs * so pass &
 
 	// Step-2 -- if error exists
 	if err != nil {

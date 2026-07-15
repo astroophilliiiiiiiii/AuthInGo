@@ -9,11 +9,11 @@ import (
 // a struct that creates a user entry in the database
 
 type UserRespository interface {
-	GetById() (*models.User, error)
-	Create(username *string, email *string, password *string) error
+	GetById(id *int) (*models.User, error)
+	Create(username *string, email *string, password *string) (*models.User, error)
 	GetAll() ([]*models.User, error) // 📌⌛ should return array of objects
 	DeleteById(id int64) error       // 📌⌛ should take an id parameter -- delete the row
-	GetByEmail(email string) (*models.User, error)
+	GetByEmail(email *string) (*models.User, error)
 }
 
 // actual -- that will talk to the database
@@ -33,16 +33,16 @@ func NewUserRepository(_db *sql.DB) UserRespository {
 }
 
 // member functions of Impl kaa hainaa  -- implements the interface
-func (u *UserRespositoryImpl) GetById() (*models.User, error) {
+func (u *UserRespositoryImpl) GetById(id *int) (*models.User, error) {
 	fmt.Println("Getting user in UserRepository ")
 
-	// Step-1 Prepare the query  -- to fetch 1 single row
-	query := "SELECT id , username , email , password , created_at , updated_at FROM users WHERE id=?"
+	// Step-1 Prepare the query  -- to fetch 1 single row /// password will not send to the frontend
+	query := "SELECT id , username , email , created_at , updated_at FROM users WHERE id=?"
 
 	// ? is created to avoid the sql injection by the hackerss !!
 
 	// Step-2 Execute the query
-	row := u.db.QueryRow(query, 1) // db is the object that is connected to db -- on that query is made !!
+	row := u.db.QueryRow(query, id) // db is the object that is connected to db -- on that query is made !!
 
 	// Step-3 Process the result
 	user := &models.User{} // Empty user object -- eventually that we need !
@@ -66,36 +66,40 @@ func (u *UserRespositoryImpl) GetById() (*models.User, error) {
 
 	return user, nil
 }
-
-func (u *UserRespositoryImpl) Create(un *string, em *string, hashpass *string) error {
+func (u *UserRespositoryImpl) Create(un *string, em *string, hashpass *string) (*models.User, error) {
 
 	// Step-1 Prepare the query
 	query := "INSERT INTO users (username, email, password) VALUES (?, ?, ?)"
 
 	// Step-2 Execute the query
-	result, err := u.db.Exec(query, *un, *em, *hashpass) // Exec -- doesnt return any row -- affecting the db
+	result, err := u.db.Exec(query, *un, *em, *hashpass)
 
 	if err != nil {
-		fmt.Println("Error returning the row!!")
-		return err
+		fmt.Println("Error inserting the user!!")
+		return nil, err
 	}
 
-	// in sql -- when we insert something -- it says naa rows affected !!
-	rowsAffected, rowErr := result.RowsAffected()
+	rowsAffected, err := result.RowsAffected()
 
-	if rowErr != nil {
-		fmt.Println("Error getting in rows affected:", rowErr)
-		return rowErr
+	if err != nil {
+		fmt.Println("Error getting rows affected:", err)
+		return nil, err
 	}
 
 	if rowsAffected == 0 {
-		fmt.Println("No rows were affected , user not created! ")
-		return rowErr
+		fmt.Println("No rows were affected, user not created!")
+		return nil, fmt.Errorf("user not created")
 	}
 
-	fmt.Println("User created successfully , rows affected: ", rowsAffected)
+	fmt.Println("User created successfully, rows affected:", rowsAffected)
 
-	return nil
+	// Fetch the created user
+	user, err := u.GetByEmail(em)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }
 
 func (u *UserRespositoryImpl) GetAll() ([]*models.User, error) {
@@ -110,6 +114,8 @@ func (u *UserRespositoryImpl) GetAll() ([]*models.User, error) {
 		return nil, nil
 	}
 
+	defer rows.Close() // Taaki database resources/free connection release ho jaye aur memory leak na ho. 🚀
+
 	// Step-3 Process the result
 	users := []*models.User{} // as there is array of users
 
@@ -121,13 +127,12 @@ func (u *UserRespositoryImpl) GetAll() ([]*models.User, error) {
 			&user.Id,
 			&user.Username,
 			&user.Email,
-			&user.Password,
 			&user.CreatedAt,
 			&user.UpdatedAt,
 		)
 
 		if err != nil {
-			return nil, nil // stops the flow -- nil returned !!
+			return nil, err // stops the flow -- nil returned !!
 		}
 
 		users = append(users, user)
@@ -171,7 +176,7 @@ func (u *UserRespositoryImpl) DeleteById(id int64) error {
 }
 
 // fetching by the email
-func (u *UserRespositoryImpl) GetByEmail(email string) (*models.User, error) {
+func (u *UserRespositoryImpl) GetByEmail(email *string) (*models.User, error) {
 	fmt.Println("Getting user in UserRepository ")
 
 	// Step-1 Prepare the query  -- to fetch 1 single row
@@ -191,7 +196,7 @@ func (u *UserRespositoryImpl) GetByEmail(email string) (*models.User, error) {
 	//Step 5: Error handling
 	if err != nil {
 		if err == sql.ErrNoRows { // row doesnt existss !!
-			fmt.Println("No user found with given ID")
+			fmt.Println("No user found with given email")
 			return nil, err
 		} else { // any other issue exitss
 			fmt.Println("Error scanning user: ", err)
