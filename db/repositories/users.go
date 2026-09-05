@@ -6,7 +6,11 @@ import (
 	"fmt"
 )
 
-// a struct that creates a user entry in the database
+// Jab tu SELECT query chalata hai, toh database tujhe raw data ki ek "Row" bhejta hai.
+// Par Go us raw data ko apne aap nahi samajh sakta ki kaunsa data kahan daalna hai.
+// Yahin par Scan() ka kaam aata hai!
+// Scan() ek "bridge" ya "courier boy" ki tarah kaam karta hai.
+// Iska ek hi kaam hai: Database ki row se data uthana, aur usko tere Go struct ke variables me fit karna.
 
 type UserRespository interface {
 	GetById(id *int) (*models.User, error)
@@ -49,7 +53,7 @@ func (u *UserRespositoryImpl) GetById(id *int) (*models.User, error) {
 
 	//Step 4: Scan result -- Scan database columns ko struct fields me copy karta h
 	// - here we have given the desitanation in the bracket ( row will be scanned and put in this empty object )
-	err := row.Scan(&user.Id, &user.Username, &user.Email, &user.Password, &user.CreatedAt, &user.UpdatedAt)
+	err := row.Scan(&user.Id, &user.Username, &user.Email, &user.CreatedAt, &user.UpdatedAt)
 
 	//Step 5: Error handling
 	if err != nil {
@@ -104,7 +108,7 @@ func (u *UserRespositoryImpl) Create(un *string, em *string, hashpass *string) (
 
 func (u *UserRespositoryImpl) GetAll() ([]*models.User, error) {
 	// Step-1 Prepare the query
-	query := "SELECT id, username, email, password, created_at, updated_at FROM users"
+	query := "SELECT id, username, email, created_at, updated_at FROM users"
 
 	// Step-2 Execute the query
 	rows, err := u.db.Query(query)

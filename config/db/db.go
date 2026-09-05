@@ -13,7 +13,7 @@ import (
 func SetupDb() (*sql.DB, error) {
 
 	// Capture connection properties. -- documentation of the go.dev -- sql connection
-	cfg := mysql.NewConfig()
+	cfg := mysql.NewConfig() // config object bnaaliyyaaa
 	cfg.User = env.GetString("DB_USER", "root")
 	cfg.Passwd = env.GetString("DB_PASSWORD", "root")
 	cfg.Net = env.GetString("DB_NET", "tcp")
@@ -21,9 +21,10 @@ func SetupDb() (*sql.DB, error) {
 	cfg.DBName = env.GetString("DBname", "airbnb_dev")
 
 	fmt.Println("Connecting to the database", cfg.DBName, cfg.FormatDSN())
-
 	// Get a database handle.
 	// FormatDSN formats the given Config into a DSN string which can be passed to the driver.
+
+	//MySQL database ke saath connection setup karne ke liye ye details use karo
 	db, err := sql.Open("mysql", cfg.FormatDSN())
 	if err != nil {
 		fmt.Println("Error connecting to the database", err)

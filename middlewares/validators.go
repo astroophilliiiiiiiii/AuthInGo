@@ -7,13 +7,14 @@ import (
 	"net/http"
 )
 
+// every middleware is just a http.hander ( type uski )
 func UserLoginRequestValidator(next http.Handler) http.Handler {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { // wrapping a func into middleware
 
 		var payload dto.LoginUserRequestDTO // as isko payload m bhrna haina toh valid type dto toh dena padega na
 
-		// read and decode json body into the payload
+		// read and decode json body into the payload ( isme aajegaa json input ) /
 		err := utils.ReadJsonBody(r, &payload)
 		if err != nil {
 			utils.WriteJsonErrorResponse(w, http.StatusBadRequest, "Invalid request body", err)

@@ -35,8 +35,10 @@ func (ur *UserRouter) Register(chiR chi.Router) {
 	//Usko chahiye ek function jiska signature ho:
 	//func(w http.ResponseWriter, r *http.Request)
 
+	chiR.With(middlewares.JWTAuthMiddleware).Get("/profile", ur.UserController.GetUserById)      // Context wali ID ke liye
+	chiR.With(middlewares.JWTAuthMiddleware).Get("/profile/{id}", ur.UserController.GetUserById) // URL wali ID ke liye
+
 	chiR.With(middlewares.UserCreateRequestValidator).Post("/profile", ur.UserController.Create) // validation needed
-	chiR.Get("/profile/{id}", ur.UserController.GetUserById)
 	chiR.With(middlewares.UserLoginRequestValidator).Post("/login", ur.UserController.LoginUser) // validation needed
 
 }

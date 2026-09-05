@@ -10,6 +10,8 @@ import (
 
 // -- controllers -- services -- repository
 
+// ⭐ Interface = kaunse functions hone chahiye
+// ⭐ Struct = kaunsa data/cheez andar rakhni hai
 type UserService interface {
 	CreateUserService(payload dto.CreateUserRequestDto) (*models.User, error)
 	LogInUser(payload *dto.LoginUserRequestDTO) (string, error)

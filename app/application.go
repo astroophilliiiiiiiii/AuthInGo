@@ -19,7 +19,7 @@ type Config struct {
 	Addr string // address -- PORT
 }
 
-// constructor for it
+// constructor for it -- func of type Config
 func NewConfig() *Config {
 	port := config.GetString("PORT", ":8080") // loading port from .env
 

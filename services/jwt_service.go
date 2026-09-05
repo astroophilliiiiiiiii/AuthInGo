@@ -3,6 +3,7 @@ package services
 import (
 	"AuthInGo/models"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -13,22 +14,21 @@ import (
 
 //JWT → user identify karne ke liye only id/email
 
-// 📌📌 TODO -- create this in the env package
-var secretKey = []byte("secret-key") // := sirf function ke andar allowed hota hai ✅
-// Global/package variables → var
-
 func GenJwtToken(i *models.User) (string, error) {
 	// NewWithClaims creates a new Token with the specified signing method and claims.
 	// MapClaims is a claims type that uses the mapstringany for JSON decoding.
 	// This is the default claims type if you don't supply one
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"id":       i.Id,
 		"username": i.Username,
 		"email":    i.Email,
 		//"password": i.Password,
 		"exp": time.Now().Add(time.Hour * 24).Unix(),
 	})
 
-	tokenString, err := token.SignedString(secretKey)
+	// Tera secret key nikalne wala code yahan hoga...
+	secretKey := os.Getenv("JWT_SECRET")
+	tokenString, err := token.SignedString([]byte(secretKey))
 
 	if err != nil {
 		return "", err

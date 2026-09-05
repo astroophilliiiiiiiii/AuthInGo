@@ -47,12 +47,34 @@ func (uc *UserController) GetUserById(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("GetUserByID called in UserController")
 
 	// call the service layer
+	var id int
 	strid := chi.URLParam(r, "id") // returns the string
 
-	id, err := strconv.Atoi(strid)
-	if err != nil {
-		utils.WriteJsonErrorResponse(w, http.StatusBadRequest, "Error converting string to in controllers", err)
+	// CONDITION 1: Agar URL me ID di hai (jaise /profile/1)
+	if strid != "" {
+		parsedId, err := strconv.Atoi(strid)
+		if err != nil {
+			utils.WriteJsonErrorResponse(w, http.StatusBadRequest, "Invalid User ID in URL", err)
+			return // 🛑 Return zaroori hai!
+		}
+		id = parsedId
+	} else {
+		// CONDITION 2: Agar URL me ID NAHI hai, toh Context se utha (Middleware se)
+		ctxVal := r.Context().Value("userID")
+		if ctxVal == nil {
+			utils.WriteJsonErrorResponse(w, http.StatusUnauthorized, "User ID missing in request", nil)
+			return
+		}
+
+		// Piche humne middleware me int64 banaya tha, usko int me convert kar rahe hain
+		ctxID, ok := ctxVal.(int64) // type assertion -- ki isme int64 dala tha vo nikalke dedo
+		if !ok {
+			utils.WriteJsonErrorResponse(w, http.StatusInternalServerError, "Context ID is not int64", nil)
+			return
+		}
+		id = int(ctxID) // finally converting in the int of this id
 	}
+
 	response, nerr := uc.UserService.GetUserByIdService(&id)
 
 	// sending JSON response to the frontend

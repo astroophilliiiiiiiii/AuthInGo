@@ -16,10 +16,13 @@ func init() { //init() Go ka special function hai. ✅ Isko tum kabhi call nahi 
 	Validator = NewValidator()
 }
 
+// caches the validated struct -- and dont re read and re validate the struct ⭐⭐⭐⭐⭐⭐
 func NewValidator() *validator.Validate {
 	return validator.New(validator.WithRequiredStructEnabled()) //Yaha actual validator object ban raha hai.
 	//Ye validator ki setting hai. Matlab validator ko bol rahe ho: "Required fields ko properly check karna."
 	// u have to do the validation with the validators inside the struct
+	// jaise humne input ke liye struct bnaaya tha toh incoming struct ko validate krre esa validator bnaaya
+	// struct ke andr likhi validations ko validate krro please   
 }
 
 func WriteJsonSuccessResponse(w http.ResponseWriter, status int, data any, message string) error {
