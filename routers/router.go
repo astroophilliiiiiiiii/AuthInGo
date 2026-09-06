@@ -5,6 +5,7 @@ package routers
 import (
 	"AuthInGo/controllers"
 	"AuthInGo/middlewares"
+	"AuthInGo/utils"
 
 	// "AuthInGo/middlewares"
 	"github.com/go-chi/chi/v5"
@@ -30,6 +31,8 @@ func SetUpRouter(UserRouter Router) *chi.Mux {
 	chirouter.Use(middlewares.RateLimitMiddleware)
 
 	chirouter.Get("/ping", controllers.PingHandler) // passing to controllers layer
+
+	chirouter.Post("/fakestoreapi/*", utils.ProxyToService("https://fakestoreapi.com", "/fakestoreapi"))
 
 	//"UserRouter, ye mera empty chi router le aur iske andar apne user wale routes daal de."
 	//Ab chirouter UserRouter ko pass kar rahe ho taaki vo uspe apne routes attach kar de.
