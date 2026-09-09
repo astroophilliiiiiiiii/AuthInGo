@@ -21,7 +21,7 @@ type Router interface {
 // Chi is a library in Go that helps you create API routes
 // 1. this will be called when app started
 // Mujhe koi bhi router dedo jiske paas Register method ho
-func SetUpRouter(UserRouter Router) *chi.Mux {
+func SetUpRouter(UserRouter Router, RoleRouter Router) *chi.Mux {
 
 	// setting up a new chi router -- in-built support
 	chirouter := chi.NewRouter() // this is chi router inbuilt function for making a router
@@ -37,6 +37,7 @@ func SetUpRouter(UserRouter Router) *chi.Mux {
 	//"UserRouter, ye mera empty chi router le aur iske andar apne user wale routes daal de."
 	//Ab chirouter UserRouter ko pass kar rahe ho taaki vo uspe apne routes attach kar de.
 	UserRouter.Register(chirouter) // calling the function of the UserRouter
+	RoleRouter.Register(chirouter)
 
 	return chirouter
 }

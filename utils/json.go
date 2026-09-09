@@ -22,10 +22,10 @@ func NewValidator() *validator.Validate {
 	//Ye validator ki setting hai. Matlab validator ko bol rahe ho: "Required fields ko properly check karna."
 	// u have to do the validation with the validators inside the struct
 	// jaise humne input ke liye struct bnaaya tha toh incoming struct ko validate krre esa validator bnaaya
-	// struct ke andr likhi validations ko validate krro please   
+	// struct ke andr likhi validations ko validate krro please
 }
 
-func WriteJsonSuccessResponse(w http.ResponseWriter, status int, data any, message string) error {
+func WriteJsonSuccessResponse(w http.ResponseWriter, status int, data any, message any) error {
 	response := map[string]any{
 		"message": message,
 		"data":    data,

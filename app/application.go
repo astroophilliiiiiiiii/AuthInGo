@@ -58,14 +58,20 @@ func (app *Application) Run() error {
 	us := services.NewUserService(ur)
 	uc := controllers.NewUserController(us)
 	uRouter := routers.NewUserRouter(uc)
+	rr := repo.NewRoleRepository(db)
+	rpr := repo.NewRolePermissionRepository(db)
+	urp := repo.NewUserRoleRepository(db)
+	rs := services.NewRoleService(rr, rpr, urp)
+	rc := controllers.NewRoleController(rs)
+	rRouter := routers.NewRoleRouter(rc)
 
 	// server object created -- reference to it returned
 	server := &http.Server{
 		Addr:         app.Config.Addr,
-		Handler:      routers.SetUpRouter(uRouter), // setup chi router and put it here
-		ReadTimeout:  10 * time.Second,             // req recieve krne kaa time // starts when client connects
-		WriteTimeout: 10 * time.Second,             // response send krne ka time -- server res likhna start krrega tb timie chalegaa
-		IdleTimeout:  60 * time.Second,             // connection client stops
+		Handler:      routers.SetUpRouter(uRouter, rRouter), // setup chi router and put it here
+		ReadTimeout:  10 * time.Second,                      // req recieve krne kaa time // starts when client connects
+		WriteTimeout: 10 * time.Second,                      // response send krne ka time -- server res likhna start krrega tb timie chalegaa
+		IdleTimeout:  60 * time.Second,                      // connection client stops
 	}
 
 	fmt.Println("Starting server on ", app.Config.Addr)
