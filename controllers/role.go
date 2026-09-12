@@ -2,6 +2,7 @@ package controllers
 
 // in this JSON reponses will be sent -- by utils -- json.go responses
 import (
+	"AuthInGo/dto"
 	"AuthInGo/services"
 	"AuthInGo/utils"
 	"fmt"
@@ -96,47 +97,41 @@ func (rc *RoleController) GetAllRoles(w http.ResponseWriter, r *http.Request) {
 	utils.WriteJsonSuccessResponse(w, http.StatusOK, "Roles fetched successfully", roles)
 }
 
-// *******************************************************************************************************
-// func (rc *RoleController) CreateRole(w http.ResponseWriter, r *http.Request) {
-// 	payload := r.Context().Value("payload").(dto.CreateRoleRequestDTO)
+func (rc *RoleController) CreateRole(w http.ResponseWriter, r *http.Request) {
+	payload := r.Context().Value("payload").(dto.CreateRoleRequestDTO)
 
-// 	role, err := rc.RoleService.CreateRole(payload.Name, payload.Description)
-// 	if err != nil {
-// 		utils.WriteJsonErrorResponse(w, http.StatusInternalServerError, "Failed to create role", err)
-// 		return
-// 	}
+	role, err := rc.RoleService.CreateRole(payload.Name, payload.Description)
+	if err != nil {
+		utils.WriteJsonErrorResponse(w, http.StatusInternalServerError, "Failed to create role", err)
+		return
+	}
 
-// 	utils.WriteJsonSuccessResponse(w, http.StatusCreated, "Role created successfully", role)
-// }
+	utils.WriteJsonSuccessResponse(w, http.StatusCreated, "Role created successfully", role)
+}
 
-// *******************************************************************************************************
+func (rc *RoleController) UpdateRole(w http.ResponseWriter, r *http.Request) {
+	roleId := chi.URLParam(r, "id") // "id" parameter nikalo r se
+	if roleId == "" {
+		utils.WriteJsonErrorResponse(w, http.StatusBadRequest, "Role ID is required", fmt.Errorf("missing role ID"))
+		return
+	}
 
-// *******************************************************************************************************
-// func (rc *RoleController) UpdateRole(w http.ResponseWriter, r *http.Request) {
-// 	roleId := chi.URLParam(r, "id") // "id" parameter nikalo r se
-// 	if roleId == "" {
-// 		utils.WriteJsonErrorResponse(w, http.StatusBadRequest, "Role ID is required", fmt.Errorf("missing role ID"))
-// 		return
-// 	}
+	id, err := strconv.Atoi(roleId)
+	if err != nil {
+		utils.WriteJsonErrorResponse(w, http.StatusBadRequest, "Invalid role ID", err)
+		return
+	}
 
-// 	id, err := strconv.Atoi(roleId)
-// 	if err != nil {
-// 		utils.WriteJsonErrorResponse(w, http.StatusBadRequest, "Invalid role ID", err)
-// 		return
-// 	}
+	payload := r.Context().Value("payload").(dto.UpdateRoleRequestDTO)
 
-// 	payload := r.Context().Value("payload").(dto.UpdateRoleRequestDTO)
+	role, err := rc.RoleService.UpdateRole(id, payload.Name, payload.Description)
+	if err != nil {
+		utils.WriteJsonErrorResponse(w, http.StatusInternalServerError, "Failed to update role", err)
+		return
+	}
 
-// 	role, err := rc.RoleService.UpdateRole(id, payload.Name, payload.Description)
-// 	if err != nil {
-// 		utils.WriteJsonErrorResponse(w, http.StatusInternalServerError, "Failed to update role", err)
-// 		return
-// 	}
-
-// 	utils.WriteJsonSuccessResponse(w, http.StatusOK, "Role updated successfully", role)
-// }
-
-// *******************************************************************************************************
+	utils.WriteJsonSuccessResponse(w, http.StatusOK, "Role updated successfully", role)
+}
 
 func (rc *RoleController) DeleteRole(w http.ResponseWriter, r *http.Request) {
 	roleId := chi.URLParam(r, "id")
@@ -182,59 +177,53 @@ func (rc *RoleController) GetRolePermissions(w http.ResponseWriter, r *http.Requ
 	utils.WriteJsonSuccessResponse(w, http.StatusOK, "Role permissions fetched successfully", rolePermissions)
 }
 
-// *******************************************************************************************************
-// func (rc *RoleController) AssignPermissionToRole(w http.ResponseWriter, r *http.Request) {
-// 	roleId := chi.URLParam(r, "id")
-// 	if roleId == "" {
-// 		utils.WriteJsonErrorResponse(w, http.StatusBadRequest, "Role ID is required", fmt.Errorf("missing role ID"))
-// 		return
-// 	}
+func (rc *RoleController) AssignPermissionToRole(w http.ResponseWriter, r *http.Request) {
+	roleId := chi.URLParam(r, "id")
+	if roleId == "" {
+		utils.WriteJsonErrorResponse(w, http.StatusBadRequest, "Role ID is required", fmt.Errorf("missing role ID"))
+		return
+	}
 
-// 	id, err := strconv.ParseInt(roleId, 10, 64)
-// 	if err != nil {
-// 		utils.WriteJsonErrorResponse(w, http.StatusBadRequest, "Invalid role ID", err)
-// 		return
-// 	}
+	id, err := strconv.ParseInt(roleId, 10, 64)
+	if err != nil {
+		utils.WriteJsonErrorResponse(w, http.StatusBadRequest, "Invalid role ID", err)
+		return
+	}
 
-// 	payload := r.Context().Value("payload").(dto.AssignPermissionRequestDTO)
+	payload := r.Context().Value("payload").(dto.AssignPermissionRequestDTO)
 
-// 	rolePermission, err := rc.RoleService.AddPermissionToRole(id, payload.PermissionId)
-// 	if err != nil {
-// 		utils.WriteJsonErrorResponse(w, http.StatusInternalServerError, "Failed to assign permission to role", err)
-// 		return
-// 	}
+	rolePermission, err := rc.RoleService.AddPermissionToRole(id, payload.PermissionId)
+	if err != nil {
+		utils.WriteJsonErrorResponse(w, http.StatusInternalServerError, "Failed to assign permission to role", err)
+		return
+	}
 
-// 	utils.WriteJsonSuccessResponse(w, http.StatusCreated, "Permission assigned to role successfully", rolePermission)
-// }
+	utils.WriteJsonSuccessResponse(w, http.StatusCreated, "Permission assigned to role successfully", rolePermission)
+}
 
-// *******************************************************************************************************
+func (rc *RoleController) RemovePermissionFromRole(w http.ResponseWriter, r *http.Request) {
+	roleId := chi.URLParam(r, "id")
+	if roleId == "" {
+		utils.WriteJsonErrorResponse(w, http.StatusBadRequest, "Role ID is required", fmt.Errorf("missing role ID"))
+		return
+	}
 
-// *******************************************************************************************************
-// func (rc *RoleController) RemovePermissionFromRole(w http.ResponseWriter, r *http.Request) {
-// 	roleId := chi.URLParam(r, "id")
-// 	if roleId == "" {
-// 		utils.WriteJsonErrorResponse(w, http.StatusBadRequest, "Role ID is required", fmt.Errorf("missing role ID"))
-// 		return
-// 	}
+	id, err := strconv.ParseInt(roleId, 10, 64)
+	if err != nil {
+		utils.WriteJsonErrorResponse(w, http.StatusBadRequest, "Invalid role ID", err)
+		return
+	}
 
-// 	id, err := strconv.ParseInt(roleId, 10, 64)
-// 	if err != nil {
-// 		utils.WriteJsonErrorResponse(w, http.StatusBadRequest, "Invalid role ID", err)
-// 		return
-// 	}
+	payload := r.Context().Value("payload").(dto.RemovePermissionRequestDTO)
 
-// 	payload := r.Context().Value("payload").(dto.RemovePermissionRequestDTO)
+	err = rc.RoleService.RemovePermissionFromRole(id, payload.PermissionId)
+	if err != nil {
+		utils.WriteJsonErrorResponse(w, http.StatusInternalServerError, "Failed to remove permission from role", err)
+		return
+	}
 
-// 	err = rc.RoleService.RemovePermissionFromRole(id, payload.PermissionId)
-// 	if err != nil {
-// 		utils.WriteJsonErrorResponse(w, http.StatusInternalServerError, "Failed to remove permission from role", err)
-// 		return
-// 	}
-
-// 	utils.WriteJsonSuccessResponse(w, http.StatusOK, "Permission removed from role successfully", nil)
-// }
-
-// *******************************************************************************************************
+	utils.WriteJsonSuccessResponse(w, http.StatusOK, "Permission removed from role successfully", nil)
+}
 
 func (rc *RoleController) GetAllRolePermissions(w http.ResponseWriter, r *http.Request) {
 	rolePermissions, err := rc.RoleService.GetAllRolePermissions()
